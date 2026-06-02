@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test de Farnsworth D-15 — Opticalia Avellaneda</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+          integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    /* ── RESET ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── PAGE SHELL ─────────────────────────────────────────── */
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 13px;
+      background: #d0d0d0;
+      color: #1a1a1a;
+      padding: 24px 16px 100px;
+    }
+
+    #printable-area {
+      background: #fff;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 22px 26px;
+      box-shadow: 0 3px 16px rgba(0,0,0,0.22);
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .header-block {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .header-brand-name {
+      font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #000;
+      line-height: 1;
+      margin-bottom: 0;
+    }
+
+    .header-brand-sub {
+      font-family: 'Arial', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #000;
+      margin-bottom: 6px;
+    }
+
+    .header-contact {
+      font-size: 11.5px;
+      line-height: 1.85;
+      color: #000;
+      font-weight: 400;
+    }
+
+    .header-contact .email { color: #0563C1; }
+
+    .header-test-title {
+      font-family: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: #000;
+      border-top: 1px solid #555;
+      margin-top: 10px;
+      padding-top: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── PATIENT GRID ───────────────────────────────────────── */
+    .patient-grid {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+      gap: 7px 8px;
+      padding: 8px 4px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .field-group {
+      display: contents; /* each field-group contributes its label + input directly to the grid */
+    }
+
+    .field-group.span-full {
+      display: flex;
+      align-items: baseline;
+      grid-column: 1 / -1;
+      gap: 5px;
+    }
+
+    .field-group > label {
+      font-weight: 700;
+      font-size: 11.5px;
+      color: #000;
+      white-space: nowrap;
+      align-self: end;
+      padding-bottom: 2px;
+    }
+
+    .field-group > input[type="text"],
+    .field-group > input[type="date"],
+    .field-group > input[type="tel"] {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      border-bottom: 1.5px solid #000;
+      padding: 2px 3px;
+      font-size: 12px;
+      font-family: inherit;
+      background: transparent;
+      outline: none;
+      color: #111;
+    }
+
+    .field-group > input:focus { border-bottom-color: #003366; }
+
+    .field-group > .dv {   /* display-value span */
+      display: none;
+      flex: 1;
+      font-size: 12px;
+      border-bottom: 1.5px solid #000;
+      min-height: 18px;
+      padding: 2px 3px;
+    }
+
+    /* ── EYE BLOCKS ─────────────────────────────────────────── */
+    .eye-block {
+      margin-bottom: 18px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    #eye-oi {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .eye-heading {
+      background: #003366;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      text-align: center;
+      padding: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    /* Sequence rows */
+    .seq-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 5px 0;
+    }
+
+    .seq-label {
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 48px;
+      flex-shrink: 0;
+      text-align: right;
+      padding-right: 4px;
+    }
+
+    .seq-label.lbl-test   { color: #cc0000; }
+    .seq-label.lbl-retest { color: #0040cc; }
+
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 3px;
+      flex: 1;
+    }
+
+    .cap-cell { position: relative; }
+
+    .cap-cell input[type="number"] {
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      padding: 4px 1px;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      background: #fff;
+      outline: none;
+      -moz-appearance: textfield;
+      appearance: textfield;
+      color: #111;
+    }
+
+    .cap-cell input[type="number"]::-webkit-inner-spin-button,
+    .cap-cell input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .cap-cell input[type="number"]:focus {
+      border-color: #003366;
+      background: #eef3ff;
+    }
+
+    /* Cap number header row (1–15 labels) */
+    .cap-header-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 1px;
+    }
+
+    .cap-header-row .seq-label { visibility: hidden; } /* spacer */
+
+    .cap-headers {
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 3px;
+      flex: 1;
+    }
+
+    .cap-hdr {
+      text-align: center;
+      font-size: 8px;
+      color: #aaa;
+      line-height: 1;
+    }
+
+    /* Display-value span inside cap cell (PDF mode) */
+    .cap-cell .dv {
+      display: none;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      padding: 4px 1px;
+      border-bottom: 1px solid #aaa;
+      min-height: 24px;
+    }
+
+    /* Canvas */
+    .canvas-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0;
+    }
+
+    canvas { display: block; }
+
+    /* ── DIAGNOSIS TABLE ────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #003366;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid #003366;
+      padding-bottom: 3px;
+      margin-bottom: 7px;
+    }
+
+    .dx-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .dx-table th {
+      background: #003366;
+      color: #fff;
+      padding: 5px 8px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .dx-table th.c { text-align: center; width: 60px; }
+
+    .dx-table td {
+      border: 1px solid #ccc;
+      padding: 5px 8px;
+    }
+
+    .dx-table td.c { text-align: center; }
+    .dx-table tr:nth-child(even) td { background: #f4f7ff; }
+
+    .dx-table input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #003366;
+    }
+
+    .dx-table .chk-dv {  /* display value for checkbox in PDF mode */
+      display: none;
+      font-size: 14px;
+      color: #003366;
+    }
+
+    /* ── OBSERVATIONS + PHOTO ───────────────────────────────── */
+    .obs-photo-row {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+
+    .obs-label {
+      font-weight: 700;
+      font-size: 11px;
+      color: #003366;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .obs-block textarea {
+      width: 100%;
+      height: 80px;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+    }
+
+    .obs-block textarea:focus { border-color: #003366; }
+
+    .obs-block .obs-dv {
+      display: none;
+      min-height: 80px;
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .photo-block { text-align: center; }
+
+    .photo-upload-btn {
+      display: inline-block;
+      background: #003366;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      transition: background 0.15s;
+    }
+
+    .photo-upload-btn:hover { background: #004b99; }
+
+    #photo-input { display: none; }
+
+    #photo-placeholder {
+      width: 200px;
+      height: 120px;
+      border: 1px dashed #bbb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 11px;
+      margin: 0 auto;
+      background: #fafafa;
+    }
+
+    #photo-preview {
+      display: none;
+      max-width: 200px;
+      max-height: 180px;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      margin: 0 auto;
+    }
+
+    /* ── SIGNATURES ─────────────────────────────────────────── */
+    .sig-row {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+      padding-top: 10px;
+    }
+
+    .sig-block { text-align: center; width: 200px; }
+
+    .sig-line {
+      border-bottom: 1px solid #444;
+      height: 44px;
+      margin-bottom: 5px;
+    }
+
+    .sig-lbl { font-size: 11px; font-weight: 600; color: #333; }
+
+    /* ── CONTROLS (fixed, always hidden in PDF) ─────────────── */
+    #controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 9999;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.28);
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-pdf   { background: #003366; color: #fff; }
+    .btn-clear { background: #666;    color: #fff; }
+
+    /* ── PDF / PRINT MODE ───────────────────────────────────── */
+    .pdf-mode .no-print           { display: none !important; }
+
+    /* cap cells */
+    .pdf-mode .cap-cell input     { display: none; }
+    .pdf-mode .cap-cell .dv       { display: block; }
+
+    /* patient fields */
+    .pdf-mode .field-group > input { display: none; }
+    .pdf-mode .field-group > .dv   { display: inline-block; }
+
+    /* observations */
+    .pdf-mode .obs-block textarea  { display: none; }
+    .pdf-mode .obs-block .obs-dv   { display: block; }
+
+    /* checkboxes */
+    .pdf-mode .dx-table input[type="checkbox"] { display: none; }
+    .pdf-mode .dx-table .chk-dv               { display: block; }
+
+    /* hide input borders in cap header (they're spacers) */
+    .pdf-mode .cap-hdr { opacity: 0; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      #printable-area { box-shadow: none; max-width: 100%; }
+      #controls, .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="printable-area">
+
+  <!-- ═══ HEADER ══════════════════════════════════════════════ -->
+  <div class="header-block">
+    <div class="header-brand-name">OPTICALiA</div>
+    <div class="header-brand-sub">AVELLANEDA</div>
+    <div class="header-contact">
+      NIT: 901496452<br>
+      CARRERA 9 # 4 - 25. ZIPAQUIRÁ - COLOMBIA<br>
+      WhatsApp: 3212708465<br>
+      <span class="email">opticaliaavellanedazipaquira@gmail.com</span>
+    </div>
+    <div class="header-test-title">TEST DE FARNSWORTH D-15</div>
+  </div>
+
+  <!-- ═══ PATIENT INFO ════════════════════════════════════════ -->
+  <div class="patient-grid">
+    <!-- Row 1: FECHA  |  CC -->
+    <div class="field-group">
+      <label>FECHA:</label>
+      <input type="date" id="fecha" data-field="fecha">
+      <span class="dv" id="fecha-dv"></span>
+    </div>
+    <div class="field-group">
+      <label>CC:</label>
+      <input type="text" id="cc" data-field="cc" placeholder="">
+      <span class="dv" id="cc-dv"></span>
+    </div>
+    <!-- Row 2: NOMBRE (full width) -->
+    <div class="field-group span-full">
+      <label>NOMBRE:</label>
+      <input type="text" id="nombre" data-field="nombre" placeholder="">
+      <span class="dv" id="nombre-dv"></span>
+    </div>
+    <!-- Row 3: DIRECCIÓN  |  CELULAR -->
+    <div class="field-group">
+      <label>DIRECCIÓN:</label>
+      <input type="text" id="direccion" data-field="direccion" placeholder="">
+      <span class="dv" id="direccion-dv"></span>
+    </div>
+    <div class="field-group">
+      <label>CELULAR:</label>
+      <input type="tel" id="celular" data-field="celular" placeholder="">
+      <span class="dv" id="celular-dv"></span>
+    </div>
+  </div>
+
+  <!-- ═══ OJO DERECHO ══════════════════════════════════════════ -->
+  <div class="eye-block" id="eye-od">
+    <div class="eye-heading">Ojo Derecho (OD)</div>
+
+    <div class="cap-header-row">
+      <span class="seq-label"></span>
+      <div class="cap-headers" id="hdr-od"></div>
+    </div>
+
+    <div class="seq-row">
+      <span class="seq-label lbl-test">Test</span>
+      <div class="caps-grid" id="caps-od-test"></div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas-od" width="420" height="420"></canvas>
+    </div>
+
+    <div class="seq-row">
+      <span class="seq-label lbl-retest">Retest</span>
+      <div class="caps-grid" id="caps-od-retest"></div>
+    </div>
+  </div>
+
+  <!-- ═══ OJO IZQUIERDO ═══════════════════════════════════════ -->
+  <div class="eye-block" id="eye-oi">
+    <div class="eye-heading">Ojo Izquierdo (OI)</div>
+
+    <div class="cap-header-row">
+      <span class="seq-label"></span>
+      <div class="cap-headers" id="hdr-oi"></div>
+    </div>
+
+    <div class="seq-row">
+      <span class="seq-label lbl-test">Test</span>
+      <div class="caps-grid" id="caps-oi-test"></div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas-oi" width="420" height="420"></canvas>
+    </div>
+
+    <div class="seq-row">
+      <span class="seq-label lbl-retest">Retest</span>
+      <div class="caps-grid" id="caps-oi-retest"></div>
+    </div>
+  </div>
+
+  <!-- ═══ DIAGNOSIS ════════════════════════════════════════════ -->
+  <div class="section-label">Diagnóstico</div>
+  <table class="dx-table">
+    <thead>
+      <tr>
+        <th>Diagnóstico</th>
+        <th>Tipo de deficiencia</th>
+        <th class="c">OD</th>
+        <th class="c">OI</th>
+      </tr>
+    </thead>
+    <tbody id="dx-tbody">
+      <!-- Rows injected by JS -->
+    </tbody>
+  </table>
+
+  <!-- ═══ OBSERVATIONS + PHOTO ═════════════════════════════════ -->
+  <div class="obs-photo-row">
+    <div class="obs-block">
+      <span class="obs-label">Observaciones:</span>
+      <textarea id="observaciones" placeholder="Notas clínicas adicionales..."></textarea>
+      <div class="obs-dv" id="obs-dv"></div>
+    </div>
+    <div class="photo-block">
+      <label class="photo-upload-btn no-print" for="photo-input">&#128247; Cargar foto</label>
+      <input type="file" id="photo-input" accept="image/*" class="no-print">
+      <div id="photo-placeholder" class="no-print">Sin evidencia fotográfica</div>
+      <img id="photo-preview" src="" alt="Evidencia fotográfica">
+    </div>
+  </div>
+
+  <!-- ═══ SIGNATURES ═══════════════════════════════════════════ -->
+  <div class="sig-row">
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-lbl">Firma del Optómetra</div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-lbl">Firma del Paciente</div>
+    </div>
+  </div>
+
+</div><!-- /#printable-area -->
+
+<!-- ═══ CONTROLS ═════════════════════════════════════════════ -->
+<div id="controls" class="no-print">
+  <button class="btn btn-pdf"   onclick="exportPDF()">&#8681; Exportar PDF</button>
+  <button class="btn btn-clear" onclick="clearForm()">&#10006; Limpiar</button>
+</div>
+
+<script>
+'use strict';
+
+// ── CANVAS GEOMETRY ──────────────────────────────────────────
+const CX = 210, CY = 210, RING_R = 168, DOT_R = 13;
+
+// CAP_POSITIONS[0] = Reference cap (top), [1..15] = caps 1–15 clockwise
+const CAP_POS = [];
+
+function computeCapPositions() {
+  for (let i = 0; i <= 15; i++) {
+    const rad = (-90 + i * 22.5) * Math.PI / 180;
+    CAP_POS[i] = {
+      x: CX + RING_R * Math.cos(rad),
+      y: CY + RING_R * Math.sin(rad),
+      label: i === 0 ? 'R' : String(i),
+    };
+  }
+}
+
+// Confusion axis definitions (diameter lines through center)
+// Angles chosen to correspond with clinical protan/deutan/tritan confusion loci
+// on the standard Farnsworth D-15 scoring circle.
+const AXES = [
+  { angleDeg: 11.25,  label: 'PROTAN',  color: '#c00000' },
+  { angleDeg: 33.75,  label: 'DEUTAN',  color: '#007000' },
+  { angleDeg: 78.75,  label: 'TRITAN',  color: '#0000c0' },
+];
+
+// ── STATE ───────────────────────────────────────────────────
+const state = {
+  patient: { fecha: '', nombre: '', cc: '', direccion: '', celular: '' },
+  od: { test: Array(15).fill(null), retest: Array(15).fill(null) },
+  oi: { test: Array(15).fill(null), retest: Array(15).fill(null) },
+  diagnosis: {
+    od: { deutan: false, protan: false, tritan: false, acro: false, normal: false },
+    oi: { deutan: false, protan: false, tritan: false, acro: false, normal: false },
+  },
+  observaciones: '',
+  photoDataUrl: null,
+};
+
+// Diagnosis row definitions for table build
+const DX_ROWS = [
+  { key: 'deutan', name: 'Deuteranopía',   tipo: 'Rojo-Verde' },
+  { key: 'protan', name: 'Protanopía',     tipo: 'Verde'      },
+  { key: 'tritan', name: 'Tritanopía',     tipo: 'Azul'       },
+  { key: 'acro',   name: 'Acromatopsia',   tipo: 'Ceguera total al color' },
+  { key: 'normal', name: 'Normal',         tipo: 'Sin alteración' },
+];
+
+// ── DOM BUILDERS ────────────────────────────────────────────
+
+function buildCapHeaders(eye) {
+  const hdr = document.getElementById(`hdr-${eye}`);
+  for (let i = 1; i <= 15; i++) {
+    const d = document.createElement('div');
+    d.className = 'cap-hdr';
+    d.textContent = i;
+    hdr.appendChild(d);
+  }
+}
+
+function buildCapInputs(eye, mode) {
+  const grid = document.getElementById(`caps-${eye}-${mode}`);
+  for (let i = 0; i < 15; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cap-cell';
+
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.min = 1;
+    inp.max = 15;
+    inp.id = `${eye}-${mode}-${i}`;
+    inp.dataset.eye = eye;
+    inp.dataset.mode = mode;
+    inp.dataset.index = i;
+    inp.addEventListener('input',   onCapInput);
+    inp.addEventListener('keydown', onCapKeydown);
+
+    const dv = document.createElement('span');
+    dv.className = 'dv';
+    dv.id = `${eye}-${mode}-${i}-dv`;
+
+    cell.appendChild(inp);
+    cell.appendChild(dv);
+    grid.appendChild(cell);
+  }
+}
+
+function buildDxTable() {
+  const tbody = document.getElementById('dx-tbody');
+  DX_ROWS.forEach(({ key, name, tipo }) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td>${tipo}</td>
+      <td class="c">
+        <input type="checkbox" id="dx-od-${key}" data-eye="od" data-type="${key}">
+        <div class="chk-dv" id="dx-od-${key}-dv"></div>
+      </td>
+      <td class="c">
+        <input type="checkbox" id="dx-oi-${key}" data-eye="oi" data-type="${key}">
+        <div class="chk-dv" id="dx-oi-${key}-dv"></div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('.dx-table input[type="checkbox"]').forEach(el => {
+    el.addEventListener('change', onDxChange);
+  });
+}
+
+// ── EVENT HANDLERS ──────────────────────────────────────────
+
+function onCapInput(e) {
+  const { eye, mode, index } = e.target.dataset;
+  let val = parseInt(e.target.value, 10);
+  if (isNaN(val) || val < 1 || val > 15) {
+    val = null;
+    e.target.value = '';
+  } else {
+    e.target.value = val;
+  }
+  state[eye][mode][+index] = val;
+  redrawCanvas(eye);
+}
+
+function onCapKeydown(e) {
+  if (e.key === 'Tab' && !e.shiftKey || e.key === 'Enter') {
+    const nextIdx = +e.target.dataset.index + 1;
+    if (nextIdx < 15) {
+      e.preventDefault();
+      const { eye, mode } = e.target.dataset;
+      document.getElementById(`${eye}-${mode}-${nextIdx}`)?.focus();
+    }
+  }
+}
+
+function onPatientInput(e) {
+  state.patient[e.target.dataset.field] = e.target.value;
+}
+
+function onDxChange(e) {
+  state.diagnosis[e.target.dataset.eye][e.target.dataset.type] = e.target.checked;
+}
+
+function onPhotoChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    state.photoDataUrl = ev.target.result;
+    const img = document.getElementById('photo-preview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── CANVAS DRAWING ──────────────────────────────────────────
+
+function drawTemplate(ctx) {
+  const W = ctx.canvas.width, H = ctx.canvas.height;
+
+  // White fill
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  // Faint outer boundary circle
+  ctx.beginPath();
+  ctx.arc(CX, CY, RING_R + DOT_R + 5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#dddddd';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Inner faint circle (guides the eye)
+  ctx.beginPath();
+  ctx.arc(CX, CY, RING_R - DOT_R - 5, 0, Math.PI * 2);
+  ctx.strokeStyle = '#eeeeee';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Cap circles + labels
+  CAP_POS.forEach((pos, i) => {
+    const isRef = i === 0;
+
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, DOT_R, 0, Math.PI * 2);
+    ctx.fillStyle   = isRef ? '#003366' : '#f2f2f2';
+    ctx.strokeStyle = isRef ? '#001a40' : '#999999';
+    ctx.lineWidth   = isRef ? 2 : 1;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle    = isRef ? '#ffffff' : '#333333';
+    ctx.font         = isRef ? 'bold 9px Arial' : '10px Arial';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(pos.label, pos.x, pos.y);
+  });
+
+  // "NORMAL" label at center
+  ctx.fillStyle    = '#bbbbbb';
+  ctx.font         = 'bold 10px Arial';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('NORMAL', CX, CY);
+}
+
+function drawAxes(ctx) {
+  const lineR = RING_R - DOT_R - 4;
+
+  AXES.forEach(({ angleDeg, label, color }) => {
+    const rad = angleDeg * Math.PI / 180;
+    const cos = Math.cos(rad), sin = Math.sin(rad);
+
+    // Diameter line (both directions from center)
+    ctx.beginPath();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 1;
+    ctx.moveTo(CX - lineR * cos, CY - lineR * sin);
+    ctx.lineTo(CX + lineR * cos, CY + lineR * sin);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels inside ring, near each end of the axis
+    const lblR = RING_R - DOT_R - 18;
+    ctx.fillStyle    = color;
+    ctx.font         = 'bold 8px Arial';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, CX + lblR * cos, CY + lblR * sin);
+    ctx.fillText(label, CX - lblR * cos, CY - lblR * sin);
+  });
+}
+
+function drawLine(ctx, seq, color, lineWidth) {
+  // Stop at first gap so partial sequences still draw
+  const pts = [];
+  for (let i = 0; i < seq.length; i++) {
+    const n = seq[i];
+    if (n === null || n < 1 || n > 15) break;
+    pts.push(CAP_POS[n]);
+  }
+  if (pts.length === 0) return;
+
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth   = lineWidth;
+  ctx.lineJoin    = 'round';
+  ctx.lineCap     = 'round';
+  ctx.setLineDash([]);
+
+  const ref = CAP_POS[0];
+  ctx.moveTo(ref.x, ref.y);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+}
+
+function drawLegend(ctx) {
+  const y = ctx.canvas.height - 14;
+  ctx.font = 'bold 9px Arial';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+
+  ctx.strokeStyle = 'rgba(200,0,0,0.85)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(10, y); ctx.lineTo(30, y); ctx.stroke();
+  ctx.fillStyle = '#990000';
+  ctx.fillText('Test', 33, y);
+
+  ctx.strokeStyle = 'rgba(0,50,190,0.85)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(75, y); ctx.lineTo(95, y); ctx.stroke();
+  ctx.fillStyle = '#003399';
+  ctx.fillText('Retest', 98, y);
+}
+
+function redrawCanvas(eye) {
+  const canvas = document.getElementById(`canvas-${eye}`);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawTemplate(ctx);
+  drawAxes(ctx);
+
+  // Draw retest first (behind test)
+  drawLine(ctx, state[eye].retest, 'rgba(0, 50, 200, 0.82)', 2.5);
+  drawLine(ctx, state[eye].test,   'rgba(210, 0, 0, 0.85)',  2.5);
+
+  drawLegend(ctx);
+}
+
+// ── PDF EXPORT ──────────────────────────────────────────────
+
+function syncDisplayValues() {
+  // Patient fields
+  ['fecha', 'nombre', 'cc', 'direccion', 'celular'].forEach(f => {
+    const inp = document.getElementById(f);
+    const dv  = document.getElementById(`${f}-dv`);
+    if (!inp || !dv) return;
+    if (f === 'fecha' && inp.value) {
+      const [y, m, d] = inp.value.split('-');
+      dv.textContent = `${d}/${m}/${y}`;
+    } else {
+      dv.textContent = inp.value || '';
+    }
+  });
+
+  // Cap sequences
+  ['od', 'oi'].forEach(eye => {
+    ['test', 'retest'].forEach(mode => {
+      for (let i = 0; i < 15; i++) {
+        const inp = document.getElementById(`${eye}-${mode}-${i}`);
+        const dv  = document.getElementById(`${eye}-${mode}-${i}-dv`);
+        if (inp && dv) dv.textContent = inp.value || '';
+      }
+    });
+  });
+
+  // Checkboxes
+  DX_ROWS.forEach(({ key }) => {
+    ['od', 'oi'].forEach(eye => {
+      const chk = document.getElementById(`dx-${eye}-${key}`);
+      const dv  = document.getElementById(`dx-${eye}-${key}-dv`);
+      if (chk && dv) dv.textContent = chk.checked ? '✔' : '';
+    });
+  });
+
+  // Observations
+  const obs = document.getElementById('observaciones');
+  const dv  = document.getElementById('obs-dv');
+  if (obs && dv) dv.textContent = obs.value || '';
+}
+
+function enterPDFMode() {
+  syncDisplayValues();
+  document.body.classList.add('pdf-mode');
+}
+
+function exitPDFMode() {
+  document.body.classList.remove('pdf-mode');
+}
+
+async function exportPDF() {
+  enterPDFMode();
+  redrawCanvas('od');
+  redrawCanvas('oi');
+
+  const nombre = (state.patient.nombre || 'paciente')
+    .trim().replace(/\s+/g, '_').replace(/[^\wÀ-ɏ]/g, '');
+  const fecha = state.patient.fecha || new Date().toISOString().slice(0, 10);
+  const filename = `Farnsworth_${nombre}_${fecha}.pdf`;
+
+  const opts = {
+    margin:     [10, 8, 10, 8],
+    filename,
+    image:      { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
+    jsPDF:      { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:  { mode: ['css', 'legacy'] },
+  };
+
+  try {
+    await html2pdf().set(opts).from(document.getElementById('printable-area')).save();
+  } catch (err) {
+    alert('Error al generar el PDF. Verifique su conexión a internet (se requiere cargar html2pdf.js).');
+    console.error(err);
+  } finally {
+    exitPDFMode();
+  }
+}
+
+// ── CLEAR FORM ──────────────────────────────────────────────
+
+function clearForm() {
+  if (!confirm('¿Limpiar todos los datos del formulario?')) return;
+
+  ['fecha', 'nombre', 'cc', 'direccion', 'celular'].forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = '';
+    state.patient[f] = '';
+  });
+
+  ['od', 'oi'].forEach(eye => {
+    ['test', 'retest'].forEach(mode => {
+      state[eye][mode] = Array(15).fill(null);
+      for (let i = 0; i < 15; i++) {
+        const el = document.getElementById(`${eye}-${mode}-${i}`);
+        if (el) el.value = '';
+      }
+    });
+  });
+
+  DX_ROWS.forEach(({ key }) => {
+    ['od', 'oi'].forEach(eye => {
+      const el = document.getElementById(`dx-${eye}-${key}`);
+      if (el) el.checked = false;
+      state.diagnosis[eye][key] = false;
+    });
+  });
+
+  const obs = document.getElementById('observaciones');
+  if (obs) obs.value = '';
+  state.observaciones = '';
+
+  state.photoDataUrl = null;
+  const img = document.getElementById('photo-preview');
+  img.src = '';
+  img.style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  const photoInput = document.getElementById('photo-input');
+  if (photoInput) photoInput.value = '';
+
+  redrawCanvas('od');
+  redrawCanvas('oi');
+}
+
+// ── INIT ────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  computeCapPositions();
+
+  // Build dynamic DOM
+  buildCapHeaders('od');
+  buildCapHeaders('oi');
+  buildCapInputs('od', 'test');
+  buildCapInputs('od', 'retest');
+  buildCapInputs('oi', 'test');
+  buildCapInputs('oi', 'retest');
+  buildDxTable();
+
+  // Patient field listeners
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.addEventListener('input', onPatientInput);
+  });
+
+  // Observations
+  document.getElementById('observaciones').addEventListener('input', e => {
+    state.observaciones = e.target.value;
+  });
+
+  // Photo upload
+  document.getElementById('photo-input').addEventListener('change', onPhotoChange);
+
+  // Initial canvas draws (blank template)
+  redrawCanvas('od');
+  redrawCanvas('oi');
+});
+</script>
+</body>
+</html>
