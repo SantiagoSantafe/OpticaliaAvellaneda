@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Test de Farnsworth D-15 — Opticalia Avellaneda</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     /* ── RESET ─────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -136,10 +137,7 @@
       break-inside: avoid;
     }
 
-    #eye-oi {
-      page-break-before: always;
-      break-before: page;
-    }
+    /* sin salto de página forzado — html2pdf pagina automáticamente */
 
     .eye-heading {
       background: #003366;
@@ -955,9 +953,9 @@ function exitPDFMode() {
 }
 
 async function exportPDF() {
-  if (typeof html2pdf === 'undefined') {
+  if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
     alert(
-      'La librería de PDF no se pudo cargar.\n\n' +
+      'Las librerías de PDF no se pudieron cargar.\n\n' +
       'Verifique su conexión a internet e intente de nuevo.\n\n' +
       'Si el problema persiste, abra el archivo en Google Chrome con internet activo.'
     );
@@ -973,19 +971,49 @@ async function exportPDF() {
   const fecha = state.patient.fecha || new Date().toISOString().slice(0, 10);
   const filename = `Farnsworth_${nombre}_${fecha}.pdf`;
 
-  const opts = {
-    margin:      [10, 8, 10, 8],
-    filename,
-    image:       { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:   { mode: ['css', 'legacy'] },
-  };
+  // Allow layout to settle before capture
+  await new Promise(r => requestAnimationFrame(r));
+
+  const element = document.getElementById('printable-area');
+  const SCALE  = 1.5;
+  const MARGIN = 8;   // mm
+  const PAGE_W = 210; // mm (A4 width)
 
   try {
-    await html2pdf().set(opts).from(document.getElementById('printable-area')).save();
+    // ── Step 1: capture entire element as one canvas ─────────
+    // scrollY correction ensures the capture starts from the top
+    // regardless of current scroll position.
+    const canvas = await html2canvas(element, {
+      scale:        SCALE,
+      useCORS:      true,
+      allowTaint:   true,
+      logging:      false,
+      scrollX:      0,
+      scrollY:      -window.scrollY,
+      windowWidth:  document.documentElement.scrollWidth,
+      windowHeight: element.scrollHeight,
+    });
+
+    // ── Step 2: compute page height from canvas dimensions ───
+    // This guarantees the page is exactly as tall as the content.
+    const usableW = PAGE_W - MARGIN * 2;    // 194 mm
+    const mmPerPx = usableW / canvas.width; // mm per canvas pixel
+    const imgH_mm = canvas.height * mmPerPx;
+    const PAGE_H  = imgH_mm + MARGIN * 2;   // always = content + margins
+
+    // ── Step 3: build single-page PDF ───────────────────────
+    const imgData = canvas.toDataURL('image/jpeg', 0.97);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      unit:        'mm',
+      format:      [PAGE_W, PAGE_H],  // custom height → always 1 page
+      orientation: 'portrait',
+    });
+    doc.addImage(imgData, 'JPEG', MARGIN, MARGIN, usableW, imgH_mm);
+    doc.save(filename);
+
   } catch (err) {
-    console.error('html2pdf error:', err);
+    console.error('PDF export error:', err);
     alert('Error al generar el PDF: ' + err.message);
   } finally {
     exitPDFMode();
